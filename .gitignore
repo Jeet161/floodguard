@@ -1,0 +1,42 @@
+# Dependencies and environment folders
+node_modules/
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+env/
+.env
+
+# Python build and cache artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+.eggs/
+*.egg-info/
+
+# Frontend build and cache artifacts
+frontend/dist/
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+.eslintcache
+
+# System and IDE configuration
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
