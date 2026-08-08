@@ -14,6 +14,6 @@ class Config:
     NOMINATIM_URL = os.environ.get("NOMINATIM_URL", "https://nominatim.openstreetmap.org")
     OPEN_METEO_WEATHER_URL = "https://api.open-meteo.com/v1/forecast"
     OPEN_METEO_FLOOD_URL = "https://flood-api.open-meteo.com/v1/flood"
-    REQUEST_TIMEOUT = 12
+    REQUEST_TIMEOUT = 25
     CACHE_TTL_SECONDS = 600  # 10 minutes
     DEBUG = os.environ.get("FLASK_ENV", "development") == "development"
