@@ -10,7 +10,7 @@ def create_app():
 
     CORS(app, resources={r"/api/*": {"origins": Config.CORS_ORIGINS}})
 
-    from app.routes import weather, flood, risk, alerts, ai, location, health
+    from app.routes import weather, flood, risk, alerts, ai, location, health, route
     app.register_blueprint(weather.bp)
     app.register_blueprint(flood.bp)
     app.register_blueprint(risk.bp)
@@ -18,6 +18,7 @@ def create_app():
     app.register_blueprint(ai.bp)
     app.register_blueprint(location.bp)
     app.register_blueprint(health.bp)
+    app.register_blueprint(route.bp)
 
     @app.errorhandler(404)
     def not_found(e):

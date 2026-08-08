@@ -39,4 +39,9 @@ export const api = {
     unwrap(client.get("/api/location/important", { params: { lat, lon, radius } })),
 
   analyzeWithAI: (payload) => unwrap(client.post("/api/ai/analyze", payload)),
+
+  getRoute: (from_lat, from_lng, to_lat, to_lng, risk_lat, risk_lng, risk_score) =>
+    unwrap(client.get("/api/route", {
+      params: { from_lat, from_lng, to_lat, to_lng, risk_lat, risk_lng, risk_score }
+    })),
 };

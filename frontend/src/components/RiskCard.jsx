@@ -1,61 +1,116 @@
-import { RISK_COLORS, RISK_EMOJI, timeAgo } from "../utils/format";
+import { ShieldAlert, CheckCircle, AlertTriangle, AlertOctagon, ChevronRight } from "lucide-react";
+import { RISK_COLORS, RISK_BG, timeAgo } from "../utils/format";
+
+const RISK_ICONS = {
+  LOW: CheckCircle,
+  MODERATE: AlertTriangle,
+  HIGH: AlertTriangle,
+  CRITICAL: AlertOctagon,
+};
 
 export default function RiskCard({ risk, loading, error, lastUpdated }) {
   if (loading) return <RiskCardSkeleton />;
   if (error) return <ErrorState title="Risk score unavailable" message={error} />;
   if (!risk) return null;
 
-  const color = RISK_COLORS[risk.risk_level] || RISK_COLORS.LOW;
+  const color = RISK_COLORS[risk.risk_level] ?? RISK_COLORS.LOW;
+  const bg    = RISK_BG[risk.risk_level]    ?? RISK_BG.LOW;
   const score = risk.risk_score ?? 0;
-  const circumference = 2 * Math.PI * 54;
+  const circumference = 2 * Math.PI * 52;
   const offset = circumference - (score / 100) * circumference;
+  const Icon = RISK_ICONS[risk.risk_level] ?? ShieldAlert;
 
   return (
-    <div className="rounded-2xl border border-navy-700 bg-navy-800/60 p-6 shadow-card">
+    <div className="flex flex-col rounded-2xl border border-white/[0.06] bg-navy-900/60 p-6 shadow-card backdrop-blur-sm">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Flood Risk Score</h3>
-        <span className="text-xs text-slate-500">{timeAgo(lastUpdated)}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+          Flood Risk Score
+        </span>
+        <span className="text-[11px] text-slate-600">{timeAgo(lastUpdated)}</span>
       </div>
 
-      <div className="mt-4 flex flex-col items-center sm:flex-row sm:items-center sm:gap-8">
-        <div className="relative h-40 w-40 shrink-0">
+      {/* Gauge + badge */}
+      <div className="mt-5 flex flex-col items-center gap-6 sm:flex-row">
+        {/* SVG radial gauge */}
+        <div className="relative h-36 w-36 shrink-0">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-            <circle cx="60" cy="60" r="54" fill="none" stroke="#1F2A3F" strokeWidth="10" />
+            {/* Track */}
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#1F2A3F" strokeWidth="10" />
+            {/* Glow filter */}
+            <defs>
+              <filter id="gaugeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor={color} stopOpacity="0.7" />
+                <stop offset="100%" stopColor={color} />
+              </linearGradient>
+            </defs>
+            {/* Fill arc */}
             <circle
-              cx="60" cy="60" r="54" fill="none"
-              stroke={color} strokeWidth="10" strokeLinecap="round"
+              cx="60" cy="60" r="52"
+              fill="none"
+              stroke="url(#gaugeGrad)"
+              strokeWidth="10"
+              strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={offset}
-              style={{ transition: "stroke-dashoffset 1s ease-out" }}
+              filter="url(#gaugeGlow)"
+              style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)" }}
             />
           </svg>
+          {/* Center label */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-extrabold tabular-nums" style={{ color }}>{Math.round(score)}</span>
-            <span className="text-[11px] text-slate-500">/ 100</span>
+            <span
+              className="text-3xl font-black tabular-nums leading-none"
+              style={{ color }}
+            >
+              {Math.round(score)}
+            </span>
+            <span className="mt-1 text-[10px] font-semibold text-slate-500 tracking-wider">/&nbsp;100</span>
           </div>
         </div>
 
-        <div className="mt-4 flex-1 sm:mt-0">
-          <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold" style={{ backgroundColor: `${color}22`, color }}>
-            <span aria-hidden="true">{RISK_EMOJI[risk.risk_level]}</span>
-            <span>{risk.risk_level} RISK</span>
+        {/* Details */}
+        <div className="flex-1">
+          {/* Risk badge */}
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold tracking-wide"
+            style={{ background: bg, color }}
+          >
+            <Icon size={13} strokeWidth={2.5} />
+            {risk.risk_level} RISK
           </div>
-          <p className="mt-2 text-xs text-slate-400">
-            Confidence: {Math.round((risk.confidence || 0) * 100)}% · Application-generated estimate
+
+          <p className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+            Confidence:&nbsp;
+            <span className="font-semibold text-slate-400">
+              {Math.round((risk.confidence ?? 0) * 100)}%
+            </span>
+            &nbsp;· Application-generated estimate
           </p>
 
+          {/* Factors */}
           <ul className="mt-3 space-y-1.5">
             {risk.factors?.slice(0, 4).map((f, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-water-500" />
+              <li key={i} className="flex items-start gap-2 text-[13px] text-slate-300 leading-snug">
+                <ChevronRight
+                  size={13}
+                  className="mt-0.5 shrink-0"
+                  style={{ color }}
+                  strokeWidth={2.5}
+                />
                 {f}
               </li>
             ))}
           </ul>
 
           {risk.partial_data && (
-            <p className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
-              ⚠ Score calculated with partial data — some sources were unavailable.
+            <p className="mt-3 flex items-center gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-300">
+              <AlertTriangle size={12} strokeWidth={2.5} className="shrink-0" />
+              Score calculated with partial data — some sources were unavailable.
             </p>
           )}
         </div>
@@ -66,12 +121,12 @@ export default function RiskCard({ risk, loading, error, lastUpdated }) {
 
 function RiskCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-navy-700 bg-navy-800/60 p-6 shadow-card">
-      <div className="skeleton h-4 w-40" />
-      <div className="mt-6 flex items-center gap-8">
-        <div className="skeleton h-40 w-40 rounded-full" />
+    <div className="rounded-2xl border border-white/[0.06] bg-navy-900/60 p-6 shadow-card">
+      <div className="skeleton h-3 w-36" />
+      <div className="mt-5 flex items-center gap-6">
+        <div className="skeleton h-36 w-36 rounded-full shrink-0" />
         <div className="flex-1 space-y-3">
-          <div className="skeleton h-6 w-32" />
+          <div className="skeleton h-6 w-28" />
           <div className="skeleton h-3 w-full" />
           <div className="skeleton h-3 w-4/5" />
           <div className="skeleton h-3 w-3/5" />
@@ -83,9 +138,9 @@ function RiskCardSkeleton() {
 
 export function ErrorState({ title, message }) {
   return (
-    <div className="rounded-2xl border border-red-900/40 bg-red-950/20 p-6 shadow-card">
+    <div className="rounded-2xl border border-red-900/30 bg-red-950/20 p-6 shadow-card backdrop-blur-sm">
       <p className="text-sm font-semibold text-red-300">{title}</p>
-      <p className="mt-1 text-xs text-red-400/80">{message || "Please try again shortly."}</p>
+      <p className="mt-1 text-[13px] text-red-400/70">{message || "Please try again shortly."}</p>
     </div>
   );
 }

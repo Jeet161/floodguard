@@ -13,16 +13,22 @@ export default function RiskAnalysisPage() {
 
   return (
     <div className="space-y-6">
+      {/* Page header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold sm:text-2xl">Risk Analysis</h1>
-          <p className="text-sm text-slate-400">Detailed flood-risk breakdown for a chosen location.</p>
+          <h1 className="text-2xl font-black tracking-tight text-slate-100 sm:text-3xl">
+            Risk Analysis
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Detailed flood-risk breakdown for a chosen location.
+          </p>
         </div>
         <LocationSearch onSelect={setLocation} />
       </div>
 
+      {/* Main 2-col grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           <RiskCard risk={risk} loading={loading.risk} error={errors.risk} lastUpdated={lastUpdated} />
           <ForecastChart
             weather={weather} flood={flood}

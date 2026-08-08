@@ -1,48 +1,67 @@
 import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Map,
+  Navigation,
+  BarChart2,
+  Bell,
+  Info,
+  Droplets,
+} from "lucide-react";
+
+const NAV_ITEMS = [
+  { to: "/",       label: "Dashboard",     Icon: LayoutDashboard, end: true },
+  { to: "/route",  label: "Route Planner", Icon: Navigation },
+  { to: "/risk",   label: "Risk Analysis", Icon: BarChart2 },
+  { to: "/alerts", label: "Alerts",        Icon: Bell },
+  { to: "/about",  label: "About",         Icon: Info },
+];
 
 const linkClass = ({ isActive }) =>
-  `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-    isActive ? "bg-water-600/20 text-water-400" : "text-slate-300 hover:text-white hover:bg-navy-700/50"
+  `flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+    isActive
+      ? "bg-water-500/15 text-water-400 shadow-[inset_0_0_0_1px_rgba(94,200,242,0.2)]"
+      : "text-slate-400 hover:text-slate-100 hover:bg-white/5"
   }`;
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-[1000] border-b border-navy-700 bg-navy-950/90 backdrop-blur">
+    <header className="sticky top-0 z-[1100] border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-water-500 to-water-700 shadow-card">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2C12 2 6 10 6 15a6 6 0 0 0 12 0c0-5-6-13-6-13Z" fill="white" fillOpacity="0.95" />
-            </svg>
+        {/* Brand */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-water-400 to-water-700 shadow-lg shadow-water-700/30">
+            <Droplets size={18} className="text-white" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-base font-bold leading-none tracking-tight">FloodGuard</p>
-            <p className="text-[11px] leading-none text-slate-400 mt-0.5">Flood Intelligence Platform</p>
+            <p className="text-[15px] font-bold leading-none tracking-tight text-slate-100">
+              Flood<span className="text-water-400">Guard</span>
+            </p>
+            <p className="mt-0.5 text-[10px] font-medium leading-none text-slate-500 tracking-wider uppercase">
+              Flood Intelligence Platform
+            </p>
           </div>
         </div>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          <NavLink to="/" end className={linkClass}>Dashboard</NavLink>
-          <NavLink to="/map" className={linkClass}>Flood Map</NavLink>
-          <NavLink to="/risk" className={linkClass}>Risk Analysis</NavLink>
-          <NavLink to="/alerts" className={linkClass}>Alerts</NavLink>
-          <NavLink to="/about" className={linkClass}>About</NavLink>
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-0.5 md:flex">
+          {NAV_ITEMS.map(({ to, label, Icon, end }) => (
+            <NavLink key={to} to={to} end={end} className={linkClass}>
+              <Icon size={15} strokeWidth={2} />
+              {label}
+            </NavLink>
+          ))}
         </nav>
 
-        <MobileNav />
+        {/* Mobile nav */}
+        <nav className="flex items-center gap-0.5 md:hidden">
+          {NAV_ITEMS.map(({ to, Icon, label, end }) => (
+            <NavLink key={to} to={to} end={end} className={linkClass} title={label}>
+              <Icon size={17} strokeWidth={2} />
+            </NavLink>
+          ))}
+        </nav>
       </div>
     </header>
-  );
-}
-
-function MobileNav() {
-  return (
-    <nav className="flex items-center gap-1 md:hidden">
-      <NavLink to="/" end className={linkClass}>🏠</NavLink>
-      <NavLink to="/map" className={linkClass}>🗺️</NavLink>
-      <NavLink to="/risk" className={linkClass}>📊</NavLink>
-      <NavLink to="/alerts" className={linkClass}>🔔</NavLink>
-      <NavLink to="/about" className={linkClass}>ℹ️</NavLink>
-    </nav>
   );
 }
