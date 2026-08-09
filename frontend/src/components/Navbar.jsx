@@ -29,17 +29,15 @@ export default function Navbar() {
     <header className="sticky top-0 z-[1100] border-b border-white/[0.06] bg-navy-950/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-water-400 to-water-700 shadow-lg shadow-water-700/30">
-            <Droplets size={18} className="text-white" strokeWidth={2.5} />
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-water-400 to-water-700 shadow-lg shadow-water-700/30">
+            <Droplets size={22} className="text-white" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-[15px] font-bold leading-none tracking-tight text-slate-100">
+            <p className="text-[21px] font-extrabold leading-none tracking-tight text-slate-100">
               Flood<span className="text-water-400">Guard</span>
             </p>
-            <p className="mt-0.5 text-[10px] font-medium leading-none text-slate-500 tracking-wider uppercase">
-              Flood Intelligence Platform
-            </p>
+            
           </div>
         </div>
 
