@@ -102,6 +102,13 @@ floodguard/
 
 ## 🚀 Installation & Running
 
+### 0. Clone the Repository
+
+```bash
+git clone https://github.com/Jeet161/floodguard.git
+cd floodguard
+```
+
 ### Prerequisites
 - Node.js 18+
 - Python 3.10+
@@ -222,3 +229,4 @@ to stay well within rate limits.
 - The risk score is an application-generated heuristic (see `backend/app/risk_engine/`), not a
   certified hydrological forecast.
 - No real data is ever faked. If a source is unavailable, the UI says so explicitly.
+
