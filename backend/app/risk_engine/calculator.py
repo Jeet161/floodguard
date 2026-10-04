@@ -70,6 +70,18 @@ def calculate_risk(weather: dict, flood: dict) -> dict:
 
         current_discharge = flood.get("current_discharge_m3s")
         peak_discharge = flood.get("peak_forecast_discharge_m3s")
+
+        if current_discharge:
+            if current_discharge >= 3000:
+                score += 40
+                factors.append(f"Severe river flood volume detected ({current_discharge:,.0f} m³/s)")
+            elif current_discharge >= 1500:
+                score += 30
+                factors.append(f"High river flood volume detected ({current_discharge:,.0f} m³/s)")
+            elif current_discharge >= 500:
+                score += 15
+                factors.append(f"Elevated river flow volume detected ({current_discharge:,.0f} m³/s)")
+
         if current_discharge and peak_discharge and current_discharge > 0:
             ratio = peak_discharge / current_discharge
             if ratio >= T.DISCHARGE_RATIO_CRITICAL:

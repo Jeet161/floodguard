@@ -21,9 +21,24 @@ def fetch_flood(lat: float, lon: float) -> dict:
     if key in cache:
         return cache[key]
 
+    # Sample primary location and nearby points in ~20km radius (to snap to major river stems like Gandak)
+    sample_coords = [
+        (lat, lon),
+        (lat + 0.18, lon - 0.05),
+        (lat + 0.1, lon + 0.15),
+        (lat - 0.1, lon + 0.15),
+        (lat + 0.15, lon - 0.15),
+        (lat - 0.15, lon - 0.15),
+        (lat + 0.08, lon + 0.08),
+        (lat - 0.08, lon - 0.08),
+    ]
+
+    lats_str = ",".join(f"{c[0]:.4f}" for c in sample_coords)
+    lons_str = ",".join(f"{c[1]:.4f}" for c in sample_coords)
+
     params = {
-        "latitude": lat,
-        "longitude": lon,
+        "latitude": lats_str,
+        "longitude": lons_str,
         "daily": "river_discharge,river_discharge_mean,river_discharge_max,river_discharge_min",
         "forecast_days": 14,
         "past_days": 7,
@@ -32,18 +47,37 @@ def fetch_flood(lat: float, lon: float) -> dict:
     try:
         resp = requests.get(Config.OPEN_METEO_FLOOD_URL, params=params, timeout=Config.REQUEST_TIMEOUT)
         resp.raise_for_status()
-        data = resp.json()
+        raw_data = resp.json()
     except requests.RequestException as exc:
         raise FloodServiceError(f"Open-Meteo flood request failed: {exc}") from exc
     except ValueError as exc:
         raise FloodServiceError(f"Open-Meteo flood returned invalid JSON: {exc}") from exc
 
-    normalized = _normalize(data)
+    # If list of results returned, select the best river reach (highest discharge or primary)
+    if isinstance(raw_data, list) and len(raw_data) > 0:
+        best_data = raw_data[0]
+        max_disc = 0.0
+        is_snapped = False
+        for item in raw_data:
+            discharge_list = (item.get("daily") or {}).get("river_discharge") or []
+            valid_vals = [v for v in discharge_list if v is not None]
+            if valid_vals:
+                cur_val = valid_vals[min(6, len(valid_vals) - 1)]
+                if cur_val > max_disc:
+                    max_disc = cur_val
+                    best_data = item
+                    is_snapped = (item != raw_data[0])
+        data = best_data
+    else:
+        data = raw_data
+        is_snapped = False
+
+    normalized = _normalize(data, is_snapped=is_snapped)
     cache[key] = normalized
     return normalized
 
 
-def _normalize(data: dict) -> dict:
+def _normalize(data: dict, is_snapped: bool = False) -> dict:
     daily = data.get("daily", {})
     times = daily.get("time", [])
     discharge = daily.get("river_discharge", [])
@@ -80,12 +114,18 @@ def _normalize(data: dict) -> dict:
         if len(past_vals) >= 2 and future_short:
             recent_avg = sum(past_vals[-3:]) / len(past_vals[-3:])
             upcoming_avg = sum(future_short) / len(future_short)
-            if upcoming_avg > recent_avg * 1.1:
+            if upcoming_avg > recent_avg * 1.05:
                 trend = "increasing"
-            elif upcoming_avg < recent_avg * 0.9:
+            elif upcoming_avg < recent_avg * 0.95:
                 trend = "decreasing"
             else:
                 trend = "stable"
+
+    note = None
+    if is_snapped and has_data:
+        note = "River discharge snapped to nearest major river reach within 20km."
+    elif not has_data:
+        note = "No modeled river reach found near this coordinate - river discharge data is unavailable."
 
     return {
         "available": has_data,
@@ -94,5 +134,5 @@ def _normalize(data: dict) -> dict:
         "peak_forecast_discharge_m3s": peak_forecast_discharge,
         "trend": trend,
         "source": "Open-Meteo Flood API (GloFAS v4)",
-        "note": None if has_data else "No modeled river reach found near this coordinate - river discharge data is unavailable.",
+        "note": note,
     }
