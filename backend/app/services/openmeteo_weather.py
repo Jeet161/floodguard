@@ -49,6 +49,7 @@ def fetch_weather(lat: float, lon: float) -> dict:
             "weather_code",
         ]),
         "forecast_days": 7,
+        "past_days": 7,
         "timezone": "auto",
     }
 
@@ -99,9 +100,15 @@ def _normalize(data: dict) -> dict:
             "temp_min_c": d_tmin[i] if i < len(d_tmin) else None,
         })
 
-    # Rainfall expected in next 12 / 24 hours, used by the risk engine
+    # Rainfall metrics used by risk engine & dashboard
     next_12h = sum(h["precipitation_mm"] for h in hourly_series[:12] if h["precipitation_mm"] is not None)
     next_24h = sum(h["precipitation_mm"] for h in hourly_series[:24] if h["precipitation_mm"] is not None)
+
+    # Past vs Future 7-day rainfall totals
+    past_7d_precip = d_precip[:7] if len(d_precip) >= 7 else d_precip
+    future_7d_precip = d_precip[7:] if len(d_precip) > 7 else d_precip
+    past_7d_rain = sum(p for p in past_7d_precip if p is not None)
+    forecast_7d_rain = sum(p for p in future_7d_precip if p is not None)
 
     return {
         "current": {
@@ -117,6 +124,8 @@ def _normalize(data: dict) -> dict:
         "daily": daily_series,
         "forecast_rain_next_12h_mm": round(next_12h, 2),
         "forecast_rain_next_24h_mm": round(next_24h, 2),
+        "past_7d_rain_mm": round(past_7d_rain, 2),
+        "forecast_7d_rain_mm": round(forecast_7d_rain, 2),
         "source": "Open-Meteo Weather API",
         "timezone": data.get("timezone"),
     }

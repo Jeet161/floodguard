@@ -57,6 +57,25 @@ def calculate_risk(weather: dict, flood: dict) -> dict:
             score += 5
             factors.append(f"Rain currently falling ({current_precip:.1f} mm/h)")
 
+    # --- 7-Day Cumulative Antecedent & Forecast Rainfall (0-25 pts) ---
+    past_7d = weather.get("past_7d_rain_mm")
+    if past_7d is not None:
+        if past_7d >= 100:
+            score += 20
+            factors.append(f"Heavy cumulative rainfall over past 7 days ({past_7d:.0f} mm)")
+        elif past_7d >= 50:
+            score += 10
+            factors.append(f"Elevated cumulative rainfall over past 7 days ({past_7d:.0f} mm)")
+
+    forecast_7d = weather.get("forecast_7d_rain_mm")
+    if forecast_7d is not None:
+        if forecast_7d >= 100:
+            score += 15
+            factors.append(f"High cumulative rainfall forecast over next 7 days ({forecast_7d:.0f} mm)")
+        elif forecast_7d >= 50:
+            score += 8
+            factors.append(f"Moderate cumulative rainfall forecast over next 7 days ({forecast_7d:.0f} mm)")
+
     # --- River discharge component (0-45 pts) ---
     if flood.get("available"):
         confidence += 0.2
