@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Circle, Popup, useMap, LayersControl, Polyline } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Circle, Popup, useMap, useMapEvents, LayersControl, Polyline } from "react-leaflet";
 import L from "leaflet";
 import { RISK_COLORS } from "../utils/format";
 import { api } from "../services/api";
+import { useLocation } from "../context/LocationContext";
 
 // ── Custom SVG pin factory ─────────────────────────────────────────────────────
 function makeSvgIcon(fillColor, size = 28) {
@@ -78,9 +79,30 @@ function RouteFitter({ routes }) {
   return null;
 }
 
+function MapClickHandler({ onPinLocation }) {
+  useMapEvents({
+    async click(e) {
+      if (!onPinLocation) return;
+      const { lat, lng } = e.latlng;
+      let name = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      try {
+        const rev = await api.reverseGeocode(lat, lng);
+        if (rev && rev.name) {
+          name = rev.name;
+        }
+      } catch (err) {
+        console.warn("Reverse geocoding failed, using lat/lng fallback:", err);
+      }
+      onPinLocation({ latitude: lat, longitude: lng, name });
+    }
+  });
+  return null;
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function FloodMap({ location, risk, routes, height = "480px" }) {
   const [importantLocations, setImportantLocations] = useState([]);
+  const { setLocation } = useLocation();
 
   useEffect(() => {
     if (!location) return;
@@ -96,15 +118,21 @@ export default function FloodMap({ location, risk, routes, height = "480px" }) {
 
   return (
     <div
-      className="overflow-hidden rounded-2xl border border-white/[0.06] shadow-card"
+      className="relative overflow-hidden rounded-2xl border border-white/[0.06] shadow-card"
       style={{ height }}
     >
+      {/* Click hint badge */}
+      <div className="pointer-events-none absolute top-3 left-14 z-[1000] hidden sm:flex items-center gap-1.5 rounded-full border border-white/10 bg-navy-900/85 px-3 py-1 text-[11px] font-medium text-slate-300 shadow-md backdrop-blur-md">
+        <span className="text-water-400">📍</span> Click anywhere on map to set location
+      </div>
+
       <MapContainer
         center={center}
         zoom={location ? 12 : 6}
         style={{ height: "100%", width: "100%" }}
         zoomControl={true}
       >
+        <MapClickHandler onPinLocation={setLocation} />
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Dark">
             <TileLayer
