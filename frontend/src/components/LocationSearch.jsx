@@ -93,21 +93,21 @@ export default function LocationSearch({ onSelect }) {
 
       {/* Dropdown results */}
       {open && (loading || results.length > 0) && (
-        <div className="absolute z-[1200] mt-2 w-full overflow-hidden rounded-xl border border-white/[0.08] bg-navy-800/95 shadow-2xl backdrop-blur-xl">
+        <div className="absolute left-0 top-full z-[9999] mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-white/10 bg-navy-800/95 shadow-2xl backdrop-blur-xl divide-y divide-white/[0.04]">
           {loading && (
-            <div className="flex items-center gap-2 px-4 py-3 text-sm text-slate-500">
-              <Loader2 size={13} className="animate-spin" strokeWidth={2.5} />
-              Searching…
+            <div className="flex items-center gap-2 px-4 py-3 text-sm text-slate-400">
+              <Loader2 size={13} className="animate-spin text-water-400" strokeWidth={2.5} />
+              Searching locations…
             </div>
           )}
           {!loading && results.map((r, i) => (
             <button
               key={i}
               onClick={() => pick(r)}
-              className="flex w-full items-center gap-3 truncate px-4 py-2.5 text-left text-sm text-slate-300 transition-colors duration-150 hover:bg-white/[0.06] hover:text-slate-100"
+              className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-slate-300 transition-colors duration-150 hover:bg-white/[0.08] hover:text-slate-100"
             >
-              <MapPin size={13} className="shrink-0 text-slate-500" strokeWidth={2} />
-              {r.name}
+              <MapPin size={14} className="shrink-0 text-water-400" strokeWidth={2} />
+              <span className="min-w-0 flex-1 truncate font-medium">{r.name}</span>
             </button>
           ))}
         </div>

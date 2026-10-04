@@ -19,10 +19,10 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-navy-900 via-[#0d1628] to-navy-900 p-7 sm:p-10 shadow-card">
+      <section className="relative z-10 rounded-3xl border border-white/[0.07] bg-gradient-to-br from-navy-900 via-[#0d1628] to-navy-900 p-7 sm:p-10 shadow-card">
         {/* Background glow orbs */}
-        <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-water-600/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-water-500/8 blur-3xl" />
+        <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-water-600/10 blur-3xl overflow-hidden" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-water-500/8 blur-3xl overflow-hidden" />
 
         <div className="relative">
           <h1 className="text-3xl font-black tracking-tight text-slate-100 sm:text-5xl">
