@@ -134,16 +134,16 @@ export default function FloodMap({ location, risk, routes, height = "480px" }) {
       >
         <MapClickHandler onPinLocation={setLocation} />
         <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Dark">
-            <TileLayer
-              attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-            />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Street">
+          <LayersControl.BaseLayer checked name="Street">
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="Dark">
+            <TileLayer
+              attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Satellite">
